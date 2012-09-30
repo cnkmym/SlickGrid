@@ -1,0 +1,82 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <title>SlickGrid example 3: Editing</title>
+    <link rel="stylesheet" href="/public/slick/slick.grid.css" type="text/css"/>
+    <link rel="stylesheet" href="/public/slick/css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css"/>
+    <link rel="stylesheet" href="/public/slick/examples/examples.css" type="text/css"/>
+	<script src="/public/slick/lib/firebugx.js"></script>
+
+<script src="/public/slick/lib/jquery-1.7.min.js"></script>
+<script src="/public/slick/lib/jquery-ui-1.8.16.custom.min.js"></script>
+<script src="/public/slick/lib/jquery.event.drag-2.0.min.js"></script>
+
+<script src="/public/slick/slick.core.js"></script>
+<script src="/public/slick/plugins/slick.cellrangedecorator.js"></script>
+<script src="/public/slick/plugins/slick.cellrangeselector.js"></script>
+<script src="/public/slick/plugins/slick.cellselectionmodel.js"></script>
+<script src="/public/slick/slick.formatters.js"></script>
+<script src="/public/slick/slick.editors.js"></script>
+<script src="/public/slick/slick.grid.customize.js"></script>
+    <style>
+        .cell-title {
+            font-weight: bold;
+        }
+
+        .cell-effort-driven {
+            text-align: center;
+        }
+    </style>
+	<script>
+		var log = function(msg){
+			console&&console.log(msg);
+		}
+		
+		var continueOperation = function(){
+			log("All Images Loaded!!!!!!!!!!!!");
+			$("img").each(function(){log("Image "+$(this).attr("class")+" 's height is "+$(this).height());});
+		};
+		
+		$(document).ready(function(){
+			$("div.level1").ready(function(){log("level 1 is ready")});
+			$("div.level2").ready(function(){log("level 2 is ready")});
+			$("div.level3").ready(function(){log("level 3 is ready")});
+			$("img.img1").ready(function(){log("Img1 is ready, height is "+$("img.img1").height())});
+			$("img.img2").ready(function(){log("Img2 is ready, height is "+$("img.img2").height())});
+			$("img.img3").ready(function(){log("Img3 is ready, height is "+$("img.img3").height())});
+			
+			var loadCount = 3;
+			$("img").load(function(){
+			   loadCount--;
+			   if (loadCount === 0){
+					log("All Images Loaded!");
+					continueOperation();
+			   }
+			});
+			
+			$("div.level1").load(function(){log("level 1 is loaded")});
+			$("div.level2").load(function(){log("level 2 is loaded")});
+			$("div.level3").load(function(){log("level 3 is loaded")});
+			$("img.img1").load(function(){log("Img1 is load, height is "+$("img.img1").height())});
+			$("img.img2").load(function(){log("Img2 is load, height is "+$("img.img2").height())});
+			$("img.img3").load(function(){log("Img3 is load, height is "+$("img.img3").height())});
+			
+			
+		});
+	</script>
+</head>
+<body>
+<div class="level1">
+	<div class="level2">
+		<img class="img1" src="/public/images/test1.JPG"/>
+		<div class="level3">
+			<img class="img2" src="/public/images/test2.JPG"/>
+		</div>
+		<img class="img3" src="/public/images/test3.JPG"/>
+	</div>
+</div>
+
+
+</body>
+</html>
