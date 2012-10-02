@@ -2020,65 +2020,57 @@ if (typeof Slick === "undefined") {
              * edited to support dynamic row height
              */
             if (!!options.enableDynamicRowHeight) {
-
-                $(parentNode).ready(function () {
-                    console && console.log("Parent Node is Ready");
-                    var delta = 0;
-                    $.each(rows, function (index, item) {
-
-                        var $rowDom = $(rowsCache[item].rowNode);
-
-                        $rowDom.ready(function () {
-                            console && console.log("Row " + $rowDom.attr("class") + " is Ready");
-                            var maxHeight = options.rowHeight;
-                            var $cellDom = $rowDom.find("div.slick-cell");
-                            var loadCount = $cellDom.length;
-                            $.each($cellDom, function () {
-                                console && console.log("In Row "+$rowDom.attr("class")+", Cell" + $(this).attr("class") + " is Ready, Cell Height is "+$(this).height());
-//                        console && console.log("Cell " + $(this).attr("class") + " Height is : " + $(this).height());
-                                var $imgs = $(this).find("img");
-                                var $cell = $(this);
-                                if ($imgs.length > 0){
-                                    $imgs.ready(function(){
-                                        loadCount = loadCount -1;
-                                        if (loadCount === 0){
-                                            console && console.log("All cells are loaded 1");
-                                        }
-                                        console && console.log("Images in Cell" + $cell.attr("class") + " are Ready, Cell Height should be "+$imgs.height() + " but actually it is "+$cell.height());
-                                    })
-                                }else{
-                                    loadCount = loadCount -1;
-                                    if (loadCount === 0){
-                                        console && console.log("All cells are loaded 2");
-                                    }
-                                    console && console.log("No Images in Cell" + $(this).attr("class"));
-                                }
-                                maxHeight = Math.max($(this).height(), maxHeight);
-                            });
-                            $.each($cellDom, function () {
-                                $(this).css("height", maxHeight - 5 + 'px')
-                            });
-                            rowHeights.offset[item] += delta;
-                            var oldHeight = rowHeights.height[item] ? rowHeights.height[item] : 0;
-                            rowHeights.height[item] = maxHeight;
-                            $rowDom.css("height", rowHeights.height[item] + 'px').css("top", rowHeights.offset[item]);
-                            delta += maxHeight - oldHeight;
-                        });
-                        //console && console.log("Ready to check Each CELL for " + $rowDom.attr("class"));
+            	var customizeRowHeight = function(rowIndex){
+                	$rowDom = $(rowsCache[rowIndex].rowNode);
+                	 console && console.log("Ready to regulate Cell Heights In Row "+$rowDom.attr("class"));
+                	var maxHeight = rowHeights.height[rowIndex];
+                	var $cellDom = $rowDom.find("div.slick-cell");
+                	$.each($cellDom,function(){
+                		maxHeight = Math.max($(this).height(), maxHeight);
+                	});
+                	maxHeight = Math.max(options.rowHeight,maxHeight);
+                	$.each($cellDom, function () {
+                        $(this).css("height", maxHeight - 5 + 'px')
                     });
-                    if (delta !== 0) {
-                        rowHeights.updateOffset();
-                        resizeCanvas();
+                	if (maxHeight > rowHeights.height[rowIndex]){
+                		rowHeights.height[rowIndex] = maxHeight;
+                		rowHeights.updateOffset();
+                		var i=rowIndex;
+                		while (rowsCache[i]){
+                			$(rowsCache[i].rowNode).css("top", rowHeights.offset[i] + 'px');
+                		}
+                		//resizeCanvas();
+                	}else {
+                		rowHeights.height[rowIndex] = maxHeight;
+                		if ($rowDom.css("top") != rowHeights.offset[rowIndex]+'px'){
+                			$rowDom.css("top", rowHeights.offset[rowIndex] + 'px');
+                			resizeCanvas();
+                		}
+                	}
+                }
+            	
+                $.each(rows, function (index, item) {
+                    var $rowDom = $(rowsCache[item].rowNode);
+                    var $imgs = $rowDom.find("img");
+                    var counter = $imgs.length;
+                    if (counter > 0){
+                    	var loadCount = function(){
+                        	counter--;
+                        	if (counter<=0){
+                        		customizeRowHeight(item);
+                        	}
+                        }
+                    	$imgs.load(loadCount);
+                    }else {
+                    	customizeRowHeight(item);
                     }
+                    //console && console.log("Ready to check Each CELL for " + $rowDom.attr("class"));
                 });
                 //console&&console.log("Ready to check Each Row");
-
-
             }
 
         }
-
-
+        
 
         function startPostProcessing() {
             if (!options.enableAsyncPostRender) {
