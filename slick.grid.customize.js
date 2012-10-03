@@ -2026,46 +2026,48 @@ if (typeof Slick === "undefined") {
                 	var maxHeight = rowHeights.height[rowIndex];
                 	var $cellDom = $rowDom.find("div.slick-cell");
                 	$.each($cellDom,function(){
-                		maxHeight = Math.max($(this).height(), maxHeight);
+                		maxHeight = Math.max($(this).height() + 5, maxHeight);
                 	});
-                	maxHeight = Math.max(options.rowHeight,maxHeight);
-                	$.each($cellDom, function () {
+                    $.each($cellDom, function () {
                         $(this).css("height", maxHeight - 5 + 'px')
                     });
-                	if (maxHeight > rowHeights.height[rowIndex]){
-                		rowHeights.height[rowIndex] = maxHeight;
-                		rowHeights.updateOffset();
-                		var i=rowIndex;
-                		while (rowsCache[i]){
-                			$(rowsCache[i].rowNode).css("top", rowHeights.offset[i] + 'px');
-                		}
-                		//resizeCanvas();
-                	}else {
-                		rowHeights.height[rowIndex] = maxHeight;
-                		if ($rowDom.css("top") != rowHeights.offset[rowIndex]+'px'){
-                			$rowDom.css("top", rowHeights.offset[rowIndex] + 'px');
-                			resizeCanvas();
-                		}
-                	}
+                    if (maxHeight > rowHeights.height[rowIndex]){
+                        rowHeights.height[rowIndex] = maxHeight;
+                        return true;
+                    }else {
+                        return false;
+                    }
                 }
-            	
+
+                var totalCounter = 0;
+                var sizeChanged = false;
                 $.each(rows, function (index, item) {
                     var $rowDom = $(rowsCache[item].rowNode);
                     var $imgs = $rowDom.find("img");
                     var counter = $imgs.length;
                     if (counter > 0){
+                        totalCounter++;
                     	var loadCount = function(){
                         	counter--;
-                        	if (counter<=0){
-                        		customizeRowHeight(item);
+                        	if (counter === 0){
+                        		sizeChanged = customizeRowHeight(item) || sizeChanged;
+                                totalCounter--;
+                                if (totalCounter === 0 && sizeChanged){
+                                    rowHeights.updateOffset();
+                                    invalidate();
+                                }
                         	}
                         }
                     	$imgs.load(loadCount);
                     }else {
-                    	customizeRowHeight(item);
+                        sizeChanged =  customizeRowHeight(item) || sizeChanged;
                     }
                     //console && console.log("Ready to check Each CELL for " + $rowDom.attr("class"));
                 });
+                if (totalCounter === 0 && sizeChanged){
+                    rowHeights.updateOffset();
+                    invalidate();
+                }
                 //console&&console.log("Ready to check Each Row");
             }
 
